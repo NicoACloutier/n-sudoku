@@ -1,0 +1,79 @@
+body {
+    color: #fa677f;
+    background: #707070;
+    text-indent: 0px;
+    font: 100% system-ui;
+}
+
+body a {
+    color: #809fff;
+}
+
+.sidenav {
+    text-align: center;
+    height: 100%;
+    width: 230px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    font-size: 25px;
+    overflow-x: hidden;
+    padding-top: 20px;
+    padding: 6px 8px 6px 16px;
+}
+
+.grid-container {
+    min-height: 90vh;
+    padding: 0px 10px 0px 270px;
+    display: grid;
+    column-gap: 0px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.unselectedbox {
+    text-align: center;
+    padding: 70px 0;
+    border: 1px solid black;
+    color: black;
+}
+
+.selectedbox {
+    text-align: center;
+    padding: 70px 0;
+    border: 1px solid black;
+    color: black;
+    background-color: #fa677f;
+}
+
+.defaultbox {
+    text-align: center;
+    padding: 70px 0;
+    border: 1px solid black;
+    color: black;
+    background-color: #555555;
+}
+
+.primary {
+    padding: 0px 10px 0px 270px;
+    font-size: 20px;
+    text-indent: 0px;
+}
+
+.sidenav a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #fa677f;
+    display: block;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.space {
+    margin-bottom: 0.5cm;
+    color: #fff;
+}
