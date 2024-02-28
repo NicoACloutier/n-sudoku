@@ -1,54 +1,56 @@
+import { generateBoard } from './createBoard.js';
+
 const id = "container";
 
-// Construct a box within a Sudoku board based on boar statr.
-function createBox(n, row, col, selected, defaultVal, val) {
-    boxClass = selected ? "selectedbox" : (defaultVal ? "defaultbox" : "unselectedbox");
-    innerVal = val === null ? "" : val;
-    size = Math.floor(100 / (n*n));
-    return `<div class="${boxClass}">${innerVal}</div>\n`;
-}
-
-// Create a grid given a Sudoku base, HTML id, current selection location, and default and entered values.
-function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals) {
-    gridContents = "";
-    for (let i = 0; i < n*n; i++) {
-        for (let j = 0; j < n*n; j++) {
-            selected = selectRow === i && selectCol === j;
-            defaultVal = defaultVals[i][j] !== null;
-            val = defaultVal ? defaultVals[i][j] : enteredVals[i][j];
-            gridContents += createBox(n, i, j, selected, defaultVal, val);
-        }
-    }
-    document.getElementById(id).style.setProperty("grid-template-columns", `repeat(${n*n}, 1fr)`);
-    document.getElementById(id).style.setProperty("grid-template-rows", `repeat(${n*n}, 1fr)`);
-    document.getElementById(id).innerHTML = gridContents;
-}
+let n = 3;
+let nsqr = n*n;
+let board = generateBoard(n);
+let possible = board.possible;
+let row = 0;
+let col = 0;
+let defaultVals = board.defaultVals;
+let enteredVals = board.enteredVals;
 
 // Get possible values for a Sudoku board given its base.
 function getPossible(n) {
     return "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0".slice(0, n*n);
 }
 
-// THE FOLLOWING ARE TEST VALUES, AND WILL SOON BE REMOVED
-n = 2;
-possible = getPossible(n)
-row = 0;
-col = 0;
-defaultVals = [[1, 2, 3, 4], [null, null, null, null], [null, null, null, null], [null, null, null, null]];
-enteredVals = [[null, null, null, null], [2, null, null, null], [null, null, null, null], [null, null, null, null]];
-// END OF TEST VALUES
+// Construct a box within a Sudoku board based on board state.
+function createBox(n, selected, defaultVal, val) {
+    let boxClass = selected ? "selectedbox" : (defaultVal ? "defaultbox" : "unselectedbox");
+    let innerVal = val === null ? "" : val;
+    let size = Math.floor(100 / (n*n));
+    let padVal = 50 / (n*2);
+    return `<div class="${boxClass}" style="padding: ${padVal}%;">${innerVal}</div>\n`;
+}
+
+// Create a grid given a Sudoku base, HTML id, current selection location, and default and entered values.
+function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals) {
+    nsqr = n*n;
+    let gridContents = "";
+    for (let i = 0; i < defaultVals.length; i += 1) {
+        let selected = selectRow * nsqr + selectCol === i;
+        let defaultVal = defaultVals[i] !== null;
+        let val = defaultVal ? defaultVals[i] : enteredVals[i];
+        gridContents += createBox(n, selected, defaultVal, val);
+    }
+    document.getElementById(id).style.setProperty("grid-template-columns", `repeat(${n*n}, 1fr)`);
+    document.getElementById(id).style.setProperty("grid-template-rows", `repeat(${n*n}, 1fr)`);
+    document.getElementById(id).innerHTML = gridContents;
+}
 
 createGrid(n, id, row, col, defaultVals, enteredVals);
 window.addEventListener("keydown", (event) => {
     // Control arrow key logic
-    if (event.key === "ArrowDown") row = row === (n*n) - 1 ? row : row + 1;
+    if (event.key === "ArrowDown") row = row === nsqr - 1 ? row : row + 1;
     else if (event.key === "ArrowUp") row = row === 0 ? row : row - 1;
-    else if (event.key === "ArrowRight") col = col === (n*n) - 1 ? col : col + 1;
+    else if (event.key === "ArrowRight") col = col === (nsqr) - 1 ? col : col + 1;
     else if (event.key === "ArrowLeft") col = col === 0 ? col : col - 1;
     
     // Control guess entry logic
-    else if (possible.includes(event.key)) enteredVals[row][col] = event.key;
-    else if (event.key === "Backspace") enteredVals[row][col] = "";
+    else if (possible.includes(event.key)) enteredVals[row * nsqr + col] = event.key;
+    else if (event.key === "Backspace") enteredVals[row * nsqr + col] = "";
     
     // Create grid
     createGrid(n, id, row, col, defaultVals, enteredVals);
