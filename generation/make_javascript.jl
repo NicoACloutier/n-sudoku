@@ -24,14 +24,17 @@ Returns:
     `::String`: A Javascript string containing file contents information.
 """
 function makejs(base::Int, i::Int)::String
-    "\'$(readfile(base, i))\',\n"
+    "\'$(readfile(base, i))\'"
 end
 
 function main()::Nothing
     filecontents = ""
     for base in BASES
-        filecontents *= "let base_$(base) = ["
-        for i in 1:NUM_GENERATED filecontents *= makejs(base, i) end
+        filecontents *= "export const base_$(base) = ["
+        for i in 1:NUM_GENERATED
+            filecontents *= makejs(base, i)
+            if i != NUM_GENERATED filecontents *= ", " end
+        end
         filecontents *= "];\n"
     end
     open(OUTPUT_PATH, "w") do file write(file, filecontents) end
