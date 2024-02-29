@@ -2,7 +2,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class Generator {
-    private static int NUM_GENERATED = 2; // number of board to generate for each base
+    private static int NUM_GENERATED = 25; // number of board to generate for each base
     private static int INITIAL_BASE = 2; // smallest base to generate for
     private static int FINAL_BASE = 5; // largest base to generate for
     private static String CHARS = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0"; // potential characters
