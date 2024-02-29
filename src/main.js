@@ -2,7 +2,7 @@ import { generateBoard } from './createBoard.js';
 
 const id = "container";
 
-let n = 3;
+let n = 5;
 let nsqr = n*n;
 let board = generateBoard(n);
 let possible = board.possible;
@@ -21,7 +21,13 @@ function createBox(n, selected, defaultVal, val) {
     let boxClass = selected ? "selectedbox" : (defaultVal ? "defaultbox" : "unselectedbox");
     let innerVal = val === null ? "" : val;
     let size = Math.floor(100 / (n*n));
-    let padVal = 50 / (n*2);
+    let padVal = 0;
+    switch (n) {
+        case 2: padVal = 30; break;
+        case 3: padVal = 25; break;
+        case 4: padVal = 15; break;
+        case 5: padVal = 6; break;
+    }
     return `<div class="${boxClass}" style="padding: ${padVal}%;">${innerVal}</div>\n`;
 }
 
