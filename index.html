@@ -8,7 +8,11 @@
 <body>
 
 <div class="sidenav">
-  <p class="space">n-sudoku</p>
+    <p id="winstate" class="space"></p>
+    <p class="space">n-sudoku</p>
+    <input type="range" min="2" max="5" value="3" class="slider" id="sideslider"></input>
+    <p class="font: 50% system-ui;" id="sliderval"></p>
+    <button id="generator" class="sidebutton">Generate new board</button>
 </div>
 
 <div class="grid-container" id="container" style="height: 100%; width: 75%;">

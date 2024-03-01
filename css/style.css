@@ -32,27 +32,41 @@ body a {
     grid-template-columns: 1fr 1fr;
 }
 
+.sidebutton {
+    color: white;
+    background: #707070;
+    text-indent: 0px;
+    font: 65% system-ui;
+}
+
+.slider {
+  background: #fa677f;
+}
+
 .unselectedbox {
     text-align: center;
-    padding: 70px 0;
     border: 1px solid black;
+    padding: 5% 0;
     color: black;
+    font-weight: bold;
 }
 
 .selectedbox {
     text-align: center;
-    padding: 70px 0;
     border: 1px solid black;
+    padding: 5% 0;
     color: black;
     background-color: #fa677f;
+    font-weight: bold;
 }
 
 .defaultbox {
     text-align: center;
-    padding: 70px 0;
+    padding: 5% 0;
     border: 1px solid black;
     color: black;
     background-color: #555555;
+    font-weight: bold;
 }
 
 .primary {

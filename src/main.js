@@ -2,14 +2,7 @@ import { generateBoard } from './createBoard.js';
 
 const id = "container";
 
-let n = 5;
-let nsqr = n*n;
-let board = generateBoard(n);
-let possible = board.possible;
-let row = 0;
-let col = 0;
-let defaultVals = board.defaultVals;
-let enteredVals = board.enteredVals;
+let n = 3;
 
 // Get possible values for a Sudoku board given its base.
 function getPossible(n) {
@@ -30,10 +23,10 @@ function createBox(n, selected, defaultVal, val) {
     }
     return `<div class="${boxClass}" style="padding: ${padVal}%;">${innerVal}</div>\n`;
 }
-
+    
 // Create a grid given a Sudoku base, HTML id, current selection location, and default and entered values.
 function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals) {
-    nsqr = n*n;
+    let nsqr = n*n;
     let gridContents = "";
     for (let i = 0; i < defaultVals.length; i += 1) {
         let selected = selectRow * nsqr + selectCol === i;
@@ -46,18 +39,68 @@ function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals) {
     document.getElementById(id).innerHTML = gridContents;
 }
 
-createGrid(n, id, row, col, defaultVals, enteredVals);
-window.addEventListener("keydown", (event) => {
-    // Control arrow key logic
-    if (event.key === "ArrowDown") row = row === nsqr - 1 ? row : row + 1;
-    else if (event.key === "ArrowUp") row = row === 0 ? row : row - 1;
-    else if (event.key === "ArrowRight") col = col === (nsqr) - 1 ? col : col + 1;
-    else if (event.key === "ArrowLeft") col = col === 0 ? col : col - 1;
+function isCorrect(enteredVals, board) {
+    for (let i = 0; i < enteredVals.length; i++) {
+        console.log(board.mask[i] && enteredVals[i] !== board.board[i]);
+        console.log(i);
+        console.log("\n");
+        if (board.mask[i] && enteredVals[i] !== board.board[i]) { return false; }
+    }
+    console.log("true");
+    console.log("\n\n");
+    return true;
+}
+
+let slider = document.getElementById("sideslider");
+let sliderVal = document.getElementById("sliderval");
+sliderVal.innerHTML = "Base: " + slider.value;
+slider.oninput = function() {
+    sliderVal.innerHTML = "Base: " + this.value;
+    n = parseInt(this.value);
+}
     
-    // Control guess entry logic
-    else if (possible.includes(event.key)) enteredVals[row * nsqr + col] = event.key;
-    else if (event.key === "Backspace") enteredVals[row * nsqr + col] = "";
+let generatorButton = document.getElementById("generator");
+generatorButton.onclick = function() {
+    main(n);
+}
+
+function main(n) {
+    let won = false;
+    let nsqr = n*n;
+    let board = generateBoard(n);
+    let possible = board.possible;
+    let row = 0;
+    let col = 0;
+    let defaultVals = board.defaultVals;
+    let enteredVals = board.enteredVals;
     
-    // Create grid
+    let winVal = document.getElementById("winstate");
+    //winVal.innerHTML = "ksldkaslkd";
+    
+    //let winVal = document.getElementById("winstate");
+    //winstate.innerHtml = "Cdskakdksajdksa";
+    
     createGrid(n, id, row, col, defaultVals, enteredVals);
-});
+    window.addEventListener("keydown", (event) => {
+        // Control arrow key logic
+        if (event.key === "ArrowDown") row = row === nsqr - 1 ? row : row + 1;
+        else if (event.key === "ArrowUp") row = row === 0 ? row : row - 1;
+        else if (event.key === "ArrowRight") col = col === (nsqr) - 1 ? col : col + 1;
+        else if (event.key === "ArrowLeft") col = col === 0 ? col : col - 1;
+        
+        // Control guess entry logic
+        else if (possible.includes(event.key.toUpperCase())) enteredVals[row * nsqr + col] = event.key.toUpperCase();
+        else if (event.key === "Backspace") enteredVals[row * nsqr + col] = "";
+        
+        // Check for win state
+        if (!won) {
+            won = isCorrect(enteredVals, board);
+            if (won) { winVal.innerHtml = "Congrats! :)"; }
+        }
+        
+        // Create grid
+        createGrid(n, id, row, col, defaultVals, enteredVals);
+    });
+}
+
+main(n);
