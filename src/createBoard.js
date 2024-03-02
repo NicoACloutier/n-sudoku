@@ -140,5 +140,6 @@ export function generateBoard(base) {
     board.possible = getPossible(board.n).split("");
     board.defaultVals = makeDefaults(board);
     board.enteredVals = makeEntered(board);
+    board.mask = (board.mask).map((value) => { return value === "true"; });
     return board;
 }

@@ -1,8 +1,8 @@
 import { generateBoard } from './createBoard.js';
 
-const id = "container";
+let started = false;
 
-let n = 3;
+const id = "container";
 
 // Get possible values for a Sudoku board given its base.
 function getPossible(n) {
@@ -41,30 +41,14 @@ function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals) {
 
 function isCorrect(enteredVals, board) {
     for (let i = 0; i < enteredVals.length; i++) {
-        console.log(board.mask[i] && enteredVals[i] !== board.board[i]);
-        console.log(i);
-        console.log("\n");
-        if (board.mask[i] && enteredVals[i] !== board.board[i]) { return false; }
+        if (board.mask[i]) {
+            if (enteredVals[i] !== board.board[i]) { return false; }
+        }
     }
-    console.log("true");
-    console.log("\n\n");
     return true;
 }
 
-let slider = document.getElementById("sideslider");
-let sliderVal = document.getElementById("sliderval");
-sliderVal.innerHTML = "Base: " + slider.value;
-slider.oninput = function() {
-    sliderVal.innerHTML = "Base: " + this.value;
-    n = parseInt(this.value);
-}
-    
-let generatorButton = document.getElementById("generator");
-generatorButton.onclick = function() {
-    main(n);
-}
-
-function main(n) {
+function makeBoard(n) {
     let won = false;
     let nsqr = n*n;
     let board = generateBoard(n);
@@ -73,13 +57,8 @@ function main(n) {
     let col = 0;
     let defaultVals = board.defaultVals;
     let enteredVals = board.enteredVals;
-    
     let winVal = document.getElementById("winstate");
-    //winVal.innerHTML = "ksldkaslkd";
-    
-    //let winVal = document.getElementById("winstate");
-    //winstate.innerHtml = "Cdskakdksajdksa";
-    
+
     createGrid(n, id, row, col, defaultVals, enteredVals);
     window.addEventListener("keydown", (event) => {
         // Control arrow key logic
@@ -95,12 +74,30 @@ function main(n) {
         // Check for win state
         if (!won) {
             won = isCorrect(enteredVals, board);
-            if (won) { winVal.innerHtml = "Congrats! :)"; }
+            if (won) { winVal.innerHTML = "Congrats! :)"; }
+            else { createGrid(n, id, row, col, defaultVals, enteredVals); }
         }
-        
-        // Create grid
-        createGrid(n, id, row, col, defaultVals, enteredVals);
+        else {}
     });
 }
 
-main(n);
+function main() {
+    let n = 3;
+    let generatorButton = document.getElementById("generator");
+    
+    let slider = document.getElementById("sideslider");
+    let sliderVal = document.getElementById("sliderval");
+    sliderVal.innerHTML = "Base: " + slider.value;
+    slider.oninput = function() {
+        sliderVal.innerHTML = "Base: " + this.value;
+        n = parseInt(this.value);
+    }
+    
+    generatorButton.onclick = function() {
+        makeBoard(n);
+    }
+    
+    makeBoard(n);
+}
+
+if (!started) { started = true; main(); }
