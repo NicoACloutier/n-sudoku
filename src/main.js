@@ -16,13 +16,14 @@ function createBox(n, selected, defaultVal, val, i) {
     let innerVal = val === null ? "" : val;
     let size = Math.floor(100 / (nsqr));
     let padVal = 0;
+    let fontSize = 0;
     switch (n) {
-        case 2: padVal = 30; break;
-        case 3: padVal = 25; break;
-        case 4: padVal = 15; break;
-        case 5: padVal = 6; break;
+        case 2: padVal = 20; fontSize = 250; break; // set padding and font size for base-2 boards (%)
+        case 3: padVal = 15; fontSize = 200; break; // set padding and font size for base-3 boards (%)
+        case 4: padVal = 7; fontSize = 160; break; // set padding and font size for base-4 boards (%)
+        case 5: padVal = 0; fontSize = 125; break; // set padding and font size for base-5 boards (%)
     }
-    let style = `padding: ${padVal}%;`;
+    let style = `padding: ${padVal}%; font-size: ${fontSize}%;`;
     
     let isTop = (Math.floor(i / nsqr) % n === 0);
     let isLeft = ((i % nsqr) % n === 0);
