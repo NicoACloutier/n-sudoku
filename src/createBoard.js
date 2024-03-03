@@ -38,8 +38,8 @@ function shuffle_bigrow(row1, row2, board, n) {
     let initial1 = row1 * n;
     let initial2 = row2 * n;
     for (let i = 0; i < n; i++) {
-        board.board = shuffle_row(initial1, initial2, board.board, n*n);
-        board.mask = shuffle_row(initial1, initial2, board.mask, n*n);
+        board.board = shuffle_row(initial1 + i, initial2 + i, board.board, n*n);
+        board.mask = shuffle_row(initial1 + i, initial2 + i, board.mask, n*n);
     }
     return board;
 }
@@ -48,8 +48,8 @@ function shuffle_bigcol(col1, col2, board, n) {
     let initial1 = col1 * n;
     let initial2 = col2 * n;
     for (let i = 0; i < n; i++) {
-        board.board = shuffle_col(initial1, initial2, board.board, n*n);
-        board.mask = shuffle_col(initial1, initial2, board.mask, n*n);
+        board.board = shuffle_col(initial1 + i, initial2 + i, board.board, n*n);
+        board.mask = shuffle_col(initial1 + i, initial2 + i, board.mask, n*n);
     }
     return board;
 }
