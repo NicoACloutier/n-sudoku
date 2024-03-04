@@ -156,7 +156,7 @@ public class Board {
 		if (System.currentTimeMillis() - start >= limit) { return -1; }
 		return 1;
 	}
-	
+    
 	/*
     Return how many times a board can be solved (stops after 2).
     A complete call with start with `row=0`, `col=0`, and `count=0`.
@@ -171,21 +171,33 @@ public class Board {
         `Integer aN`: The base of the Sudoku board.
     Returns:
         `int`: The number of solutions. Stops counting after 2.
+            NOTE: Returns `-1` if time limit was exceeded.
 	*/
     private static int solveCount(Integer[][] maskedBoard, int row, int col, int count, boolean[][] mask, long limit, long start, Integer aN) {
 		if (System.currentTimeMillis() - start >= limit) { return -1; }
-		if (row == maskedBoard.length) { Board.maskBoardInPlace(maskedBoard, mask); return 1; }
-		else if (col == maskedBoard.length) { count += Board.solveCount(maskedBoard, row+1, 0, count, mask, limit, start, aN); return count; }
-		else if (maskedBoard[row][col] != null) { count += Board.solveCount(maskedBoard, row, col+1, count, mask, limit, start, aN); return count; }
+		if (row == maskedBoard.length) { Board.maskBoardInPlace(maskedBoard, mask); return count + 1; }
+		else if (col == maskedBoard.length) {
+            int result = Board.solveCount(maskedBoard, row+1, 0, count, mask, limit, start, aN);
+            return (result == -1) ? -1 : count + result;
+        }
+		else if (maskedBoard[row][col] != null) {
+            int result = Board.solveCount(maskedBoard, row, col+1, count, mask, limit, start, aN);
+            return (result == -1) ? -1 : count + result;
+        }
 		
 		ArrayList<Integer> numbers = Board.makePossible(maskedBoard, row, col, aN);
-		if (numbers.size() == 0) { return 0; }
+		if (numbers.size() == 0) {
+            int result = Board.solveCount(maskedBoard, row, col+1, count, mask, limit, start, aN);
+            return (result == -1) ? -1 : count + result;
+        }
 		Collections.shuffle(numbers);
 		
 		for (int i = 0; i < numbers.size() && count < 2; i++) {
 			Integer temp = numbers.get(i);
 			maskedBoard[row][col] = temp;
-			count += Board.solveCount(maskedBoard, row+1, col, count, mask, limit, start, aN);
+            int result = Board.solveCount(maskedBoard, row, col+1, count, mask, limit, start, aN);
+            if (result == -1) { return -1; }
+			else { count += result; }
 		}
 		
 		if (System.currentTimeMillis() - start >= limit) { return -1; }
@@ -260,7 +272,7 @@ public class Board {
 			mask[x][y] = true;
 			int count = Board.solveCount(getMaskedBoard(), 0, 0, 0, mask, limit, time, n);
 			if (count == -1) { return -1; }
-			if (count > 1) { mask[x][y] = false; }
+			else if (count > 1) { mask[x][y] = false; }
 		}
 		
 		return 1;
