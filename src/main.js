@@ -70,24 +70,22 @@ function addZero(val) {
 
 function setTime() {
     time += 1;
+    localStorage.setItem("time", JSON.stringify(time));
     let seconds = Math.floor(time % 60);
     let minutes = Math.floor((time % 3600) / 60);
     let hours = Math.floor(time / 3600);
     document.getElementById("timer").innerHTML = `${hours}:${addZero(minutes)}:${addZero(seconds)}`;
 }
 
-function makeBoard(n) {
+function drawBoard(board, enteredVals, n) {
     let won = false;
     let nsqr = n*n;
-    let board = generateBoard(n);
     let possible = board.possible;
     let row = 0;
     let col = 0;
     let defaultVals = board.defaultVals;
-    let enteredVals = board.enteredVals;
     let winVal = document.getElementById("winstate");
     winVal.innerHTML = "";
-    time = 0;
 
     createGrid(n, id, row, col, defaultVals, enteredVals);
     window.addEventListener("keydown", (event) => {
@@ -102,16 +100,25 @@ function makeBoard(n) {
             // Control guess entry logic
             if (possible.includes(event.key.toUpperCase())) enteredVals[row * nsqr + col] = event.key.toUpperCase();
             else if (event.key === "Backspace") enteredVals[row * nsqr + col] = "";
+            localStorage.setItem("enteredVals", JSON.stringify(enteredVals));
             
             won = isCorrect(enteredVals, board);
             if (won) {
-                window.clearInterval(interval);
+                window.clearInterval(interval); // stop timer
                 winVal.innerHTML = "Congrats! :)";
             }
         }
         
         createGrid(n, id, row, col, defaultVals, enteredVals);
     });
+}
+
+function makeBoard(n) {
+    time = 0;
+    let board = generateBoard(n);
+    localStorage.setItem("board", JSON.stringify(board));
+    localStorage.setItem("enteredVals", JSON.stringify(board.enteredVals));
+    drawBoard(board, board.enteredVals, n);
 }
 
 function main() {
@@ -129,15 +136,23 @@ function main() {
     generatorButton.onclick = function() {
         // reset timer
         time = 0;
-        window.clearInterval(interval);
-        interval = window.setInterval(setTime, 1000);
+        window.clearInterval(interval); // stop old timer
+        interval = window.setInterval(setTime, 1000); // start new timer
         document.getElementById("timer").innerHTML = "0:00:00";
         
         // make board
         makeBoard(n);
     }
     
-    makeBoard(n);
+    let board = JSON.parse(localStorage.getItem("board"));
+    if (board === null) { makeBoard(n); }
+    else {
+        n = board.n;
+        time = JSON.parse(localStorage.getItem("time"));
+        setTime(); // display the time
+        let enteredVals = JSON.parse(localStorage.getItem("enteredVals"));
+        drawBoard(board, enteredVals, n);
+    }
 }
 
 main();
