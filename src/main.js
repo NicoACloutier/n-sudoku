@@ -1,6 +1,7 @@
 import { generateBoard } from './createBoard.js';
 
-let started = false;
+let time = 0;
+let interval = window.setInterval(setTime, 1000); // have time increment once per 1000 milliseconds (1 second)
 
 const id = "container";
 
@@ -62,6 +63,19 @@ function isCorrect(enteredVals, board) {
     return true;
 }
 
+function addZero(val) {
+    if (val % 10 === val) { return `0${val}`; }
+    return `${val}`
+}
+
+function setTime() {
+    time += 1;
+    let seconds = Math.floor(time % 60);
+    let minutes = Math.floor((time % 3600) / 60);
+    let hours = Math.floor(time / 3600);
+    document.getElementById("timer").innerHTML = `${hours}:${addZero(minutes)}:${addZero(seconds)}`;
+}
+
 function makeBoard(n) {
     let won = false;
     let nsqr = n*n;
@@ -73,6 +87,7 @@ function makeBoard(n) {
     let enteredVals = board.enteredVals;
     let winVal = document.getElementById("winstate");
     winVal.innerHTML = "";
+    time = 0;
 
     createGrid(n, id, row, col, defaultVals, enteredVals);
     window.addEventListener("keydown", (event) => {
@@ -89,7 +104,10 @@ function makeBoard(n) {
             else if (event.key === "Backspace") enteredVals[row * nsqr + col] = "";
             
             won = isCorrect(enteredVals, board);
-            if (won) { winVal.innerHTML = "Congrats! :)"; }
+            if (won) {
+                window.clearInterval(interval);
+                winVal.innerHTML = "Congrats! :)";
+            }
         }
         
         createGrid(n, id, row, col, defaultVals, enteredVals);
@@ -109,10 +127,17 @@ function main() {
     }
     
     generatorButton.onclick = function() {
+        // reset timer
+        time = 0;
+        window.clearInterval(interval);
+        interval = window.setInterval(setTime, 1000);
+        document.getElementById("timer").innerHTML = "0:00:00";
+        
+        // make board
         makeBoard(n);
     }
     
     makeBoard(n);
 }
 
-if (!started) { started = true; main(); }
+main();
