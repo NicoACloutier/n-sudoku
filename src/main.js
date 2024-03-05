@@ -2,6 +2,8 @@ import { generateBoard } from './createBoard.js';
 
 let time = 0;
 let interval = window.setInterval(setTime, 1000); // have time increment once per 1000 milliseconds (1 second)
+let paused = false;
+let won = false;
 
 const id = "container";
 
@@ -78,7 +80,7 @@ function setTime() {
 }
 
 function drawBoard(board, enteredVals, n) {
-    let won = false;
+    won = false;
     let nsqr = n*n;
     let possible = board.possible;
     let row = 0;
@@ -95,6 +97,8 @@ function drawBoard(board, enteredVals, n) {
         else if (event.key === "ArrowRight") col = col === (nsqr) - 1 ? col : col + 1;
         else if (event.key === "ArrowLeft") col = col === 0 ? col : col - 1;
         
+        won = isCorrect(enteredVals, board);
+        
         // Check for win state
         if (!won) {
             // Control guess entry logic
@@ -102,7 +106,7 @@ function drawBoard(board, enteredVals, n) {
             else if (event.key === "Backspace") enteredVals[row * nsqr + col] = "";
             localStorage.setItem("enteredVals", JSON.stringify(enteredVals));
             
-            won = isCorrect(enteredVals, board);
+            won = isCorrect(enteredVals, board); // I realize this appears just a few lines earlier, for some reason you have to check twice or it doesn't work
             if (won) {
                 window.clearInterval(interval); // stop timer
                 winVal.innerHTML = "Congrats! :)";
@@ -115,15 +119,29 @@ function drawBoard(board, enteredVals, n) {
 
 function makeBoard(n) {
     time = 0;
+    won = false;
     let board = generateBoard(n);
     localStorage.setItem("board", JSON.stringify(board));
     localStorage.setItem("enteredVals", JSON.stringify(board.enteredVals));
     drawBoard(board, board.enteredVals, n);
 }
 
+function findDrawBoard(n) {
+    let slider = document.getElementById("sideslider");
+    let board = JSON.parse(localStorage.getItem("board"));
+    if (board === null) { makeBoard(n); }
+    else {
+        n = board.n;
+        slider.value = n;
+        time = JSON.parse(localStorage.getItem("time"));
+        setTime(); // display the time
+        let enteredVals = JSON.parse(localStorage.getItem("enteredVals"));
+        drawBoard(board, enteredVals, n);
+    }
+}
+
 function main() {
     let n = 3;
-    let generatorButton = document.getElementById("generator");
     
     let slider = document.getElementById("sideslider");
     let sliderVal = document.getElementById("basenumber");
@@ -133,7 +151,10 @@ function main() {
         n = parseInt(this.value);
     }
     
+    let generatorButton = document.getElementById("generator");
     generatorButton.onclick = function() {
+        paused = false;
+        
         // reset timer
         time = 0;
         window.clearInterval(interval); // stop old timer
@@ -144,15 +165,27 @@ function main() {
         makeBoard(n);
     }
     
-    let board = JSON.parse(localStorage.getItem("board"));
-    if (board === null) { makeBoard(n); }
-    else {
-        n = board.n;
-        time = JSON.parse(localStorage.getItem("time"));
-        setTime(); // display the time
-        let enteredVals = JSON.parse(localStorage.getItem("enteredVals"));
-        drawBoard(board, enteredVals, n);
+    let pauseButton = document.getElementById("pause");
+    pauseButton.onclick = function () {
+        paused = !paused;
+        if (paused) {
+            if (!won) {
+                window.clearInterval(interval);
+                document.getElementById(id).innerHTML = "";
+            }
+            this.innerHTML = "Play";
+        }
+        else {
+            if (!won) {
+                interval = window.setInterval(setTime, 1000); // start new timer
+                setTime();
+                findDrawBoard(n);
+            }
+            this.innerHTML = "Pause";
+        }
     }
+    
+    findDrawBoard(n);
 }
 
 main();
