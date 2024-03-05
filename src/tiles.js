@@ -13,8 +13,8 @@ function getSize(n, candidate) {
         switch (n) { // these are the values in candidate mode
             case 2: padVal = 0; fontSize = 380; break;
             case 3: padVal = 0; fontSize = 110; break;
-            case 4: padVal = 0; fontSize = 50; break; 
-            case 5: padVal = 5; fontSize = 5; break; 
+            case 4: padVal = 0; fontSize = 68; break; 
+            case 5: padVal = 6; fontSize = 40; break; 
         }
     }
     else { // these are the values otherwise
@@ -60,28 +60,17 @@ Arguments:
     `candidates`: The candidates for this tile.
     `n`: The base of the Sudoku board.
 Returns:
-    `candidateGrid`: The inner grid or string with candidate displaying information
-        NOTE: This generates a grid if `n` is not 5, but a line-broken string otherwise.
-              This is because a grid for base-5 boards would not allow the complete board to fit on the screen.
+    `candidateGrid`: The inner grid or string with candidate displaying information.
 */
 function displayCandidates(candidates, n) {
-    if (n !== 5) {
-        let percentage = 1 / (n*n);
-        let equal = " 1fr".repeat(n).substring(1);
-        let style = `grid-template-columns: ${equal}; grid-template-rows: ${equal}; font-weight: normal;`;
-        let candidateGrid = `<div class="candidate-grid" style="${style}">`;
-        for (let i = 0; i < candidates.length; i++) {
-            candidateGrid += `<div class="grid-item">${candidates.charAt(i)}</div>`;
-        }
-        return candidateGrid + "</div>";
+    let columns = (n === 5) ? " 1fr".repeat(Math.ceil(n*n/3)).substring(1) : " 1fr".repeat(n).substring(1);
+    let rows = (n === 5) ? " 1fr".repeat(3).substring(1) : " 1fr".repeat(n).substring(1);
+    let style = `grid-template-columns: ${columns}; grid-template-rows: ${rows}; font-weight: normal; font-family: monospace;`;
+    let candidateGrid = `<div class="candidate-grid" style="${style}">`;
+    for (let i = 0; i < candidates.length; i++) {
+        candidateGrid += `<div class="grid-item">${candidates.charAt(i)}</div>`;
     }
-    else {
-        let candidateGrid = '<pre>';
-        for (let i = 0; i < 3; i++) {
-            candidateGrid += candidates.substring(i*(n*n/3), (i+1)*(n*n/3)) + "<br>";
-        }
-        return candidateGrid + "</pre>";
-    }
+    return candidateGrid + "</div>";
 }
 
 /*
