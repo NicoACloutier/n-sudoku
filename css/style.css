@@ -32,6 +32,12 @@ body a {
     grid-template-columns: 1fr 1fr;
 }
 
+.candidate-grid {
+    display: grid;
+    column-gap: 0px;
+    padding: 0px 0px 0px 0px;
+}
+
 .sidebutton {
     color: white;
     background: #707070;

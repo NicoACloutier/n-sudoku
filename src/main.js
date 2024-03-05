@@ -1,4 +1,5 @@
 import { generateBoard } from './createBoard.js';
+import { createTile } from './tiles.js';
 
 let time = 0;
 let interval = window.setInterval(setTime, 1000); // have time increment once per 1000 milliseconds (1 second)
@@ -11,45 +12,16 @@ const id = "container";
 function getPossible(n) {
     return "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0".slice(0, n*n);
 }
-
-// Construct a box within a Sudoku board based on board state.
-function createBox(n, selected, defaultVal, val, i) {
-    let nsqr = n*n;
-    let boxClass = selected ? "selectedbox" : (defaultVal ? "defaultbox" : "unselectedbox");
-    let innerVal = val === null ? "" : val;
-    let size = Math.floor(100 / (nsqr));
-    let padVal = 0;
-    let fontSize = 0;
-    switch (n) {
-        case 2: padVal = 20; fontSize = 250; break; // set padding and font size for base-2 boards (%)
-        case 3: padVal = 15; fontSize = 200; break; // set padding and font size for base-3 boards (%)
-        case 4: padVal = 7; fontSize = 160; break; // set padding and font size for base-4 boards (%)
-        case 5: padVal = 0; fontSize = 125; break; // set padding and font size for base-5 boards (%)
-    }
-    let style = `padding: ${padVal}%; font-size: ${fontSize}%;`;
-    
-    let isTop = (Math.floor(i / nsqr) % n === 0);
-    let isLeft = ((i % nsqr) % n === 0);
-    let isRight = (((i+1) % nsqr) % n === 0);
-    let isBottom = (Math.floor((i+nsqr) / nsqr) % n === 0);
-    
-    if (isTop) { style += " border-top: 2px solid black;"; }
-    if (isLeft) { style += " border-left: 2px solid black;"; }
-    if (isRight) { style += " border-right: 2px solid black;"; }
-    if (isBottom) { style += " border-bottom: 2px solid black;"; }
-    
-    return `<div class="${boxClass}" style="${style}">${innerVal}</div>\n`;
-}
     
 // Create a grid given a Sudoku base, HTML id, current selection location, and default and entered values.
-function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals) {
+function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals, candidates) {
     let nsqr = n*n;
     let gridContents = "";
     for (let i = 0; i < defaultVals.length; i += 1) {
         let selected = selectRow * nsqr + selectCol === i;
         let defaultVal = defaultVals[i] !== null;
         let val = defaultVal ? defaultVals[i] : enteredVals[i];
-        gridContents += createBox(n, selected, defaultVal, val, i);
+        gridContents += createTile(n, selected, defaultVal, candidates[i], val, i);
     }
     document.getElementById(id).style.setProperty("grid-template-columns", `repeat(${n*n}, 1fr)`);
     document.getElementById(id).style.setProperty("grid-template-rows", `repeat(${n*n}, 1fr)`);
@@ -63,6 +35,10 @@ function isCorrect(enteredVals, board) {
         }
     }
     return true;
+}
+
+String.prototype.replaceAt = function(index, replacement) {
+    return this.substring(0, index) + replacement + this.substring(index + replacement.length);
 }
 
 function addZero(val) {
@@ -79,7 +55,7 @@ function setTime() {
     document.getElementById("timer").innerHTML = `${hours}:${addZero(minutes)}:${addZero(seconds)}`;
 }
 
-function drawBoard(board, enteredVals, n) {
+function drawBoard(board, enteredVals, n, candidates) {
     won = false;
     let nsqr = n*n;
     let possible = board.possible;
@@ -89,7 +65,7 @@ function drawBoard(board, enteredVals, n) {
     let winVal = document.getElementById("winstate");
     winVal.innerHTML = "";
 
-    createGrid(n, id, row, col, defaultVals, enteredVals);
+    createGrid(n, id, row, col, defaultVals, enteredVals, candidates);
     window.addEventListener("keydown", (event) => {
         // Control arrow key logic
         if (event.key === "ArrowDown") row = row === nsqr - 1 ? row : row + 1;
@@ -99,12 +75,22 @@ function drawBoard(board, enteredVals, n) {
         
         won = isCorrect(enteredVals, board);
         
+        // Get input information
+        let code = event.code.startsWith("Digit") || event.code.startsWith("Key") ? event.code.slice(event.code.length-1) : "";
+        let shift = event.shiftKey;
+        
         // Check for win state
         if (!won) {
             // Control guess entry logic
-            if (possible.includes(event.key.toUpperCase())) enteredVals[row * nsqr + col] = event.key.toUpperCase();
+            let index = possible.indexOf(code)
+            if (index !== -1 && !shift) enteredVals[row * nsqr + col] = code;
+            else if (index !== -1) { // control candidate entry
+                if (candidates[row * nsqr + col].includes(code)) candidates[row * nsqr + col] = candidates[row * nsqr + col].replaceAt(index, " ");
+                else { candidates[row * nsqr + col] = candidates[row * nsqr + col].replaceAt(index, code); }
+            }
             else if (event.key === "Backspace") enteredVals[row * nsqr + col] = "";
             localStorage.setItem("enteredVals", JSON.stringify(enteredVals));
+            localStorage.setItem("candidates", JSON.stringify(candidates));
             
             won = isCorrect(enteredVals, board); // I realize this appears just a few lines earlier, for some reason you have to check twice or it doesn't work
             if (won) {
@@ -113,7 +99,7 @@ function drawBoard(board, enteredVals, n) {
             }
         }
         
-        createGrid(n, id, row, col, defaultVals, enteredVals);
+        createGrid(n, id, row, col, defaultVals, enteredVals, candidates);
     });
 }
 
@@ -123,7 +109,8 @@ function makeBoard(n) {
     let board = generateBoard(n);
     localStorage.setItem("board", JSON.stringify(board));
     localStorage.setItem("enteredVals", JSON.stringify(board.enteredVals));
-    drawBoard(board, board.enteredVals, n);
+    localStorage.setItem("candidates", JSON.stringify(board.candidates));
+    drawBoard(board, board.enteredVals, n, board.candidates);
 }
 
 function findDrawBoard(n) {
@@ -136,7 +123,8 @@ function findDrawBoard(n) {
         time = JSON.parse(localStorage.getItem("time"));
         setTime(); // display the time
         let enteredVals = JSON.parse(localStorage.getItem("enteredVals"));
-        drawBoard(board, enteredVals, n);
+        let candidates = JSON.parse(localStorage.getItem("candidates"));
+        drawBoard(board, enteredVals, n, candidates);
     }
 }
 
@@ -155,13 +143,13 @@ function main() {
     generatorButton.onclick = function() {
         paused = false;
         
-        // reset timer
+        // Reset timer
         time = 0;
-        window.clearInterval(interval); // stop old timer
-        interval = window.setInterval(setTime, 1000); // start new timer
+        window.clearInterval(interval); // Stop old timer
+        interval = window.setInterval(setTime, 1000); // Start new timer
         document.getElementById("timer").innerHTML = "0:00:00";
         
-        // make board
+        // Make board
         makeBoard(n);
     }
     

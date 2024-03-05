@@ -251,6 +251,17 @@ function makeEntered(board) {
 }
 
 /*
+Make candidates for a board.
+Arguments:
+    `board`: THe board to construct candidates for.
+Returns:
+    `candidates`: The default candidates.
+*/
+function makeCandidates(board) {
+    return (board.board).map((value) => { return (" ".repeat(board.n)).repeat(board.n); })
+}
+
+/*
 Generate a board using an existing original board given a base.
 Arguments:
     `base`: An integer containing the base of the Sudoku board.
@@ -276,6 +287,7 @@ export function generateBoard(base) {
     board.possible = getPossible(board.n).split("");
     board.defaultVals = makeDefaults(board);
     board.enteredVals = makeEntered(board);
+    board.candidates = makeCandidates(board);
     board.mask = (board.mask).map((value) => { return value === "true"; });
     return board;
 }
