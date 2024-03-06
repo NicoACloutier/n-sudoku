@@ -5,6 +5,7 @@ let time = 0;
 let interval = window.setInterval(setTime, 1000); // have time increment once per 1000 milliseconds (1 second)
 let paused = false;
 let won = false;
+let candidateMode = false;
 
 const id = "container";
 
@@ -77,7 +78,7 @@ function drawBoard(board, enteredVals, n, candidates) {
         
         // Get input information
         let code = event.code.startsWith("Digit") || event.code.startsWith("Key") ? event.code.slice(event.code.length-1) : "";
-        let shift = event.shiftKey;
+        let shift = event.shiftKey ^ candidateMode;
         
         // Check for win state
         if (!won) {
@@ -171,6 +172,11 @@ function main() {
             }
             this.innerHTML = "Pause";
         }
+    }
+    
+    let candidateSwitch = document.getElementById("candidate");
+    candidateSwitch.onclick = function() {
+        candidateMode = !candidateMode;
     }
     
     findDrawBoard(n);

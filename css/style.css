@@ -18,7 +18,7 @@ body a {
     top: 0;
     left: 0;
     background-color: #111;
-    font-size: 25px;
+    font-size: 22px;
     overflow-x: hidden;
     padding-top: 20px;
     padding: 6px 8px 6px 16px;
@@ -94,6 +94,7 @@ body a {
 }
 
 .space {
+    font-size: 30px;
     margin-bottom: 0.5cm;
     color: #fff;
 }
