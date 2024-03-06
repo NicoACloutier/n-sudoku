@@ -11,10 +11,10 @@ function getSize(n, candidate) {
     let fontSize = 0;
     if (candidate) {
         switch (n) { // these are the values in candidate mode
-            case 2: padVal = 0; fontSize = 380; break;
-            case 3: padVal = 0; fontSize = 110; break;
+            case 2: padVal = 0; fontSize = 400; break;
+            case 3: padVal = 2; fontSize = 160; break;
             case 4: padVal = 0; fontSize = 68; break; 
-            case 5: padVal = 6; fontSize = 40; break; 
+            case 5: padVal = 3; fontSize = 40; break; 
         }
     }
     else { // these are the values otherwise
@@ -22,7 +22,7 @@ function getSize(n, candidate) {
             case 2: padVal = 20; fontSize = 360; break; // set padding and font size for base-2 boards (%)
             case 3: padVal = 15; fontSize = 200; break; // set padding and font size for base-3 boards (%)
             case 4: padVal = 7; fontSize = 160; break; // set padding and font size for base-4 boards (%)
-            case 5: padVal = 0; fontSize = 125; break; // set padding and font size for base-5 boards (%)
+            case 5: padVal = 0; fontSize = 120; break; // set padding and font size for base-5 boards (%)
         }   
     }
     return `padding: ${padVal}%; font-size: ${fontSize}%;`;
@@ -63,14 +63,42 @@ Returns:
     `candidateGrid`: The inner grid or string with candidate displaying information.
 */
 function displayCandidates(candidates, n) {
-    let columns = (n === 5) ? " 1fr".repeat(Math.ceil(n*n/3)).substring(1) : " 1fr".repeat(n).substring(1);
-    let rows = (n === 5) ? " 1fr".repeat(3).substring(1) : " 1fr".repeat(n).substring(1);
-    let style = `grid-template-columns: ${columns}; grid-template-rows: ${rows}; font-weight: normal; font-family: monospace;`;
+    let columns = "";
+    let rows = "";
+    switch (n) {
+        case 2: columns = "1fr 1fr"; rows = "1fr 1fr"; break;
+        case 3: columns = "1fr 1fr 1fr"; rows = "1fr 1fr 1fr"; break;
+        case 4: columns = "1fr 1fr 1fr 1fr"; rows = "1fr 1fr 1fr 1fr"; break;
+        case 5: columns = "1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr"; rows = "1fr 1fr 1fr"; break;
+    }
+    // let columns = (n === 5) ? " 1fr".repeat(Math.ceil(n*n/3)).substring(1) : " 1fr".repeat(n).substring(1);
+    // let rows = (n === 5) ? " 1fr".repeat(3).substring(1) : " 1fr".repeat(n).substring(1);
+    let style = `grid-template-columns: ${columns}; grid-template-rows: ${rows}; font-weight: normal;`;
+    if (n !== 2) { style += " font-family: monospace;" }
     let candidateGrid = `<div class="candidate-grid" style="${style}">`;
     for (let i = 0; i < candidates.length; i++) {
         candidateGrid += `<div class="grid-item">${candidates.charAt(i)}</div>`;
     }
     return candidateGrid + "</div>";
+}
+
+/*
+Construct the inner HTML to display given candidates within a tile with memoization.
+Arguments:
+    `candidates`: The candidates for this tile.
+    `n`: The base of the Sudoku board.
+    `memo`: The current saved memoized state.
+Returns:
+    `candidateGrid`: The inner grid or string with candidate displaying information.
+*/
+function memoizedDisplayCandidates(candidates, n, memo) {
+    let representation = `${candidates} ${n}`
+    if (memo[representation]) return memo[representation];
+    else {
+        let style = displayCandidates(candidates, n);
+        memo[representation] = style;
+        return style;
+    }
 }
 
 /*
@@ -87,10 +115,10 @@ Arguments:
 Returns:
     `innerHTML`: The inner HTML for the tile div inside of the container grid.
 */
-export function createTile(n, selected, defaultVal, candidates, val, i) {
+export function createTile(n, selected, defaultVal, candidates, val, i, memo) {
     let boxClass = selected ? "selectedbox" : (defaultVal ? "defaultbox" : "unselectedbox");
     let candidate = (val === null || val === "") && boxClass !== "defaultbox";
-    let innerVal = candidate ? displayCandidates(candidates, n) : (val === null ? "" : val);
+    let innerVal = candidate ? memoizedDisplayCandidates(candidates, n, memo) : (val === null ? "" : val);
     let style = createStyle(n, i, candidate);
     
     return `<div class="${boxClass}" style="${style} line-break: anywhere;">${innerVal}</div>\n`;

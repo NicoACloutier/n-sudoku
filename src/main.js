@@ -6,6 +6,7 @@ let interval = window.setInterval(setTime, 1000); // have time increment once pe
 let paused = false;
 let won = false;
 let candidateMode = false;
+let styleMemo = {};
 
 const id = "container";
 
@@ -15,14 +16,14 @@ function getPossible(n) {
 }
     
 // Create a grid given a Sudoku base, HTML id, current selection location, and default and entered values.
-function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals, candidates) {
+function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals, candidates, memo) {
     let nsqr = n*n;
     let gridContents = "";
     for (let i = 0; i < defaultVals.length; i += 1) {
         let selected = selectRow * nsqr + selectCol === i;
         let defaultVal = defaultVals[i] !== null;
         let val = defaultVal ? defaultVals[i] : enteredVals[i];
-        gridContents += createTile(n, selected, defaultVal, candidates[i], val, i);
+        gridContents += createTile(n, selected, defaultVal, candidates[i], val, i, memo);
     }
     document.getElementById(id).style.setProperty("grid-template-columns", `repeat(${n*n}, 1fr)`);
     document.getElementById(id).style.setProperty("grid-template-rows", `repeat(${n*n}, 1fr)`);
@@ -66,7 +67,7 @@ function drawBoard(board, enteredVals, n, candidates) {
     let winVal = document.getElementById("winstate");
     winVal.innerHTML = "";
 
-    createGrid(n, id, row, col, defaultVals, enteredVals, candidates);
+    createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo);
     window.addEventListener("keydown", (event) => {
         // Control arrow key logic
         if (event.key === "ArrowDown") row = row === nsqr - 1 ? row : row + 1;
@@ -100,7 +101,7 @@ function drawBoard(board, enteredVals, n, candidates) {
             }
         }
         
-        createGrid(n, id, row, col, defaultVals, enteredVals, candidates);
+        createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo);
     });
 }
 
