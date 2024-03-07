@@ -6,6 +6,7 @@ let interval = window.setInterval(setTime, 1000); // have time increment once pe
 let paused = false;
 let won = false;
 let candidateMode = false;
+let errorMode = false;
 let styleMemo = {};
 
 const id = "container";
@@ -16,14 +17,14 @@ function getPossible(n) {
 }
     
 // Create a grid given a Sudoku base, HTML id, current selection location, and default and entered values.
-function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals, candidates, memo) {
+function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals, candidates, memo, board) {
     let nsqr = n*n;
     let gridContents = "";
     for (let i = 0; i < defaultVals.length; i += 1) {
         let selected = selectRow * nsqr + selectCol === i;
         let defaultVal = defaultVals[i] !== null;
         let val = defaultVal ? defaultVals[i] : enteredVals[i];
-        gridContents += createTile(n, selected, defaultVal, candidates[i], val, i, memo);
+        gridContents += createTile(n, selected, defaultVal, candidates[i], val, i, memo, errorMode, board[i]);
     }
     document.getElementById(id).style.setProperty("grid-template-columns", `repeat(${n*n}, 1fr)`);
     document.getElementById(id).style.setProperty("grid-template-rows", `repeat(${n*n}, 1fr)`);
@@ -66,8 +67,16 @@ function drawBoard(board, enteredVals, n, candidates) {
     let defaultVals = board.defaultVals;
     let winVal = document.getElementById("winstate");
     winVal.innerHTML = "";
+    
+    errorMode = JSON.parse(localStorage.getItem("errorMode"));
+    let errorSwitch = document.getElementById("error");
+    errorSwitch.onclick = function() {
+        errorMode = !errorMode;
+        localStorage.setItem("errorMode", JSON.stringify(errorMode));
+        createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
+    }
 
-    createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo);
+    createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
     window.addEventListener("keydown", (event) => {
         // Control arrow key logic
         if (event.key === "ArrowDown") row = row === nsqr - 1 ? row : row + 1;
@@ -101,7 +110,7 @@ function drawBoard(board, enteredVals, n, candidates) {
             }
         }
         
-        createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo);
+        createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
     });
 }
 
@@ -178,7 +187,15 @@ function main() {
     let candidateSwitch = document.getElementById("candidate");
     candidateSwitch.onclick = function() {
         candidateMode = !candidateMode;
+        localStorage.setItem("candidateMode", JSON.stringify(candidateMode));
     }
+    
+    candidateMode = JSON.parse(localStorage.getItem("candidateMode"));
+    errorMode = JSON.parse(localStorage.getItem("errorMode"));
+    
+    slider.value = n;
+    candidateSwitch.checked = candidateMode;
+    document.getElementById("error").checked = errorMode;
     
     findDrawBoard(n);
 }

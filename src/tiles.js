@@ -112,14 +112,19 @@ Arguments:
     `val`: The entered value for this tile.
         NOTE: Empty if this is `""` or `null`.
     `i`: The index of the tile
+    `memo`: Object used for memoization of candidate displaying.
+    `errorMode`: Boolean, `true` when error check mode enabled and `false` otherwise.
+    `correct`: The correct value for this tile.
+        NOTE: Should only be used when `errorMode === true`
 Returns:
     `innerHTML`: The inner HTML for the tile div inside of the container grid.
 */
-export function createTile(n, selected, defaultVal, candidates, val, i, memo) {
+export function createTile(n, selected, defaultVal, candidates, val, i, memo, errorMode, correct) {
     let boxClass = selected ? "selectedbox" : (defaultVal ? "defaultbox" : "unselectedbox");
     let candidate = (val === null || val === "") && boxClass !== "defaultbox";
     let innerVal = candidate ? memoizedDisplayCandidates(candidates, n, memo) : (val === null ? "" : val);
     let style = createStyle(n, i, candidate);
+    if (errorMode && !defaultVal && !candidate && correct !== val) { style += " color: #8b0000;"; }
     
     return `<div class="${boxClass}" style="${style} line-break: anywhere;">${innerVal}</div>\n`;
 }
