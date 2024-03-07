@@ -75,6 +75,21 @@ function drawBoard(board, enteredVals, n, candidates) {
         localStorage.setItem("errorMode", JSON.stringify(errorMode));
         createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
     }
+    
+    let hintButton = document.getElementById("hint");
+    hintButton.onclick = function () {
+        let length = board.board.length;
+        let ind = Math.floor(Math.random() * length);
+        for (let i = 0; i < length; i++) {
+            let val = enteredVals[i+ind];
+            if (board.defaultVals[i+ind] === null && (val === "" || val === null)) {
+                board.defaultVals[i+ind] = board.board[i+ind];
+                break;
+            }
+            if (ind+i === length-1) ind = 0;
+        }
+        createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
+    }
 
     createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
     window.addEventListener("keydown", (event) => {
