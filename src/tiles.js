@@ -122,7 +122,12 @@ Returns:
 export function createTile(n, selected, defaultVal, candidates, val, i, memo, errorMode, correct) {
     let boxClass = selected ? "selectedbox" : (defaultVal ? "defaultbox" : "unselectedbox");
     let candidate = (val === null || val === "") && boxClass !== "defaultbox";
-    let innerVal = candidate ? memoizedDisplayCandidates(candidates, n, memo) : (val === null ? "" : val);
+    
+    let innerVal = "";
+    if (candidate && n > 3) innerVal = memoizedDisplayCandidates(candidates, n, memo);
+    else if (candidate) innerVal = displayCandidates(candidates, n);
+    else innerVal = val === null ? "" : val;
+    
     let style = createStyle(n, i, candidate);
     if (errorMode && !defaultVal && !candidate && correct !== val) { style += " color: #8b0000;"; }
     
