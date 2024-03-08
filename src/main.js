@@ -17,11 +17,11 @@ function getPossible(n) {
 }
     
 // Create a grid given a Sudoku base, HTML id, current selection location, and default and entered values.
-function createGrid(n, id, selectRow, selectCol, defaultVals, enteredVals, candidates, memo, board) {
+function createGrid(n, id, ind, defaultVals, enteredVals, candidates, memo, board) {
     let nsqr = n*n;
     let gridContents = "";
     for (let i = 0; i < defaultVals.length; i += 1) {
-        let selected = selectRow * nsqr + selectCol === i;
+        let selected = ind === i;
         let defaultVal = defaultVals[i] !== null;
         let val = defaultVal ? defaultVals[i] : enteredVals[i];
         gridContents += createTile(n, selected, defaultVal, candidates[i], val, i, memo, errorMode, board[i]);
@@ -62,8 +62,7 @@ function drawBoard(board, enteredVals, n, candidates) {
     won = false;
     let nsqr = n*n;
     let possible = board.possible;
-    let row = 0;
-    let col = 0;
+    let ind = 0;
     let defaultVals = board.defaultVals;
     let winVal = document.getElementById("winstate");
     winVal.innerHTML = "";
@@ -73,31 +72,31 @@ function drawBoard(board, enteredVals, n, candidates) {
     errorSwitch.onclick = function() {
         errorMode = !errorMode;
         localStorage.setItem("errorMode", JSON.stringify(errorMode));
-        createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
+        createGrid(n, id, ind, defaultVals, enteredVals, candidates, styleMemo, board.board);
     }
     
     let hintButton = document.getElementById("hint");
     hintButton.onclick = function () {
         let length = board.board.length;
-        let ind = Math.floor(Math.random() * length);
+        let index = Math.floor(Math.random() * length);
         for (let i = 0; i < length; i++) {
-            let val = enteredVals[i+ind];
-            if (board.defaultVals[i+ind] === null && (val === "" || val === null)) {
-                board.defaultVals[i+ind] = board.board[i+ind];
+            let val = enteredVals[i+index];
+            if (board.defaultVals[i+index] === null && (val === "" || val === null)) {
+                board.defaultVals[i+index] = board.board[i+index];
                 break;
             }
-            if (ind+i === length-1) ind = 0;
+            if (index+i === length-1) ind = 0;
         }
-        createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
+        createGrid(n, id, ind, defaultVals, enteredVals, candidates, styleMemo, board.board);
     }
 
-    createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
+    createGrid(n, id, ind, defaultVals, enteredVals, candidates, styleMemo, board.board);
     window.addEventListener("keydown", (event) => {
         // Control arrow key logic
-        if (event.key === "ArrowDown") row = row === nsqr - 1 ? row : row + 1;
-        else if (event.key === "ArrowUp") row = row === 0 ? row : row - 1;
-        else if (event.key === "ArrowRight") col = col === (nsqr) - 1 ? col : col + 1;
-        else if (event.key === "ArrowLeft") col = col === 0 ? col : col - 1;
+        if (event.key === "ArrowDown") ind = ind + nsqr > enteredVals.length ? ind : ind + nsqr;
+        else if (event.key === "ArrowUp") ind = ind - nsqr < 0 ? ind : ind - nsqr;
+        else if (event.key === "ArrowRight") ind = (ind+1) % nsqr === 0 ? ind : ind + 1;
+        else if (event.key === "ArrowLeft") ind = ind % nsqr === 0 ? ind : ind - 1;
         
         won = isCorrect(enteredVals, board);
         
@@ -109,12 +108,12 @@ function drawBoard(board, enteredVals, n, candidates) {
         if (!won) {
             // Control guess entry logic
             let index = possible.indexOf(code)
-            if (index !== -1 && !shift) enteredVals[row * nsqr + col] = code;
+            if (index !== -1 && !shift) enteredVals[ind] = code;
             else if (index !== -1) { // control candidate entry
-                if (candidates[row * nsqr + col].includes(code)) candidates[row * nsqr + col] = candidates[row * nsqr + col].replaceAt(index, " ");
-                else { candidates[row * nsqr + col] = candidates[row * nsqr + col].replaceAt(index, code); }
+                if (candidates[ind].includes(code)) candidates[ind] = candidates[ind].replaceAt(index, " ");
+                else { candidates[ind] = candidates[ind].replaceAt(index, code); }
             }
-            else if (event.key === "Backspace") enteredVals[row * nsqr + col] = "";
+            else if (event.key === "Backspace") enteredVals[ind] = "";
             localStorage.setItem("enteredVals", JSON.stringify(enteredVals));
             localStorage.setItem("candidates", JSON.stringify(candidates));
             
@@ -125,7 +124,7 @@ function drawBoard(board, enteredVals, n, candidates) {
             }
         }
         
-        createGrid(n, id, row, col, defaultVals, enteredVals, candidates, styleMemo, board.board);
+        createGrid(n, id, ind, defaultVals, enteredVals, candidates, styleMemo, board.board);
     });
 }
 
@@ -155,7 +154,8 @@ function findDrawBoard(n) {
 }
 
 function main() {
-    let n = 3;
+    let n = JSON.parse(localStorage.getItem("n"));
+    if (n === null) n = 3;
     
     let slider = document.getElementById("sideslider");
     let sliderVal = document.getElementById("basenumber");
@@ -163,6 +163,7 @@ function main() {
     slider.oninput = function() {
         sliderVal.innerHTML = this.value;
         n = parseInt(this.value);
+        localStorage.setItem("n", JSON.stringify(n));
     }
     
     let generatorButton = document.getElementById("generator");
