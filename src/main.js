@@ -5,6 +5,7 @@ let time = 0;
 let interval = window.setInterval(setTime, 1000); // Increment time once per 1000 milliseconds (1 second)
 let paused = false, won = false, candidateMode = false, errorMode = false; // Whether it's paused, whether it's been won, whether candidate mode is on, whether error mode is on
 let styleMemo = {};
+let clickListener = null;
 
 const id = "container"; // Primary ID of main board container
 
@@ -18,7 +19,7 @@ Returns:
 function getPossible(n) {
     return "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0".slice(0, n*n);
 }
-    
+   
 /*
 Create a grid given a Sudoku base, HTML id, current selection location, and default and entered values.
 Arguments:
@@ -34,7 +35,7 @@ Returns:
     `void`
 */
 function createGrid(n, id, ind, defaultVals, enteredVals, candidates, memo, board) {
-    let nsqr = n*n;
+    const nsqr = n*n;
     let gridContents = "";
     for (let i = 0; i < defaultVals.length; i += 1) {
         let selected = ind === i;
@@ -154,15 +155,21 @@ Returns:
 */
 function drawBoard(board, enteredVals, n, candidates) {
     won = false;
-    let nsqr = n*n;
+    const nsqr = n*n;
     let possible = board.possible;
     let ind = 0;
-    let defaultVals = board.defaultVals;
+    const defaultVals = board.defaultVals;
     let winVal = document.getElementById("winstate");
     winVal.innerHTML = "";
+    document.getElementById(id).outerHTML = document.getElementById(id).outerHTML; // Remove old event listeners
     
     document.getElementById(id).style.setProperty("grid-template-columns", `repeat(${nsqr}, 1fr)`);
     document.getElementById(id).style.setProperty("grid-template-rows", `repeat(${nsqr}, 1fr)`);
+    
+    document.getElementById(id).addEventListener("click", (event) => {
+        if (event.target.className.endsWith("box")) ind = [...event.target.parentElement.children].indexOf(event.target); // Mouse support
+        createGrid(n, id, ind, defaultVals, enteredVals, candidates, styleMemo, board.board);
+    });
     
     errorMode = JSON.parse(localStorage.getItem("errorMode"));
     let errorSwitch = document.getElementById("error");
@@ -269,6 +276,7 @@ function main() {
         // Reset timer
         time = 0;
         window.clearInterval(interval); // Stop old timer
+        window.outerHTML = window.outerHTML;
         interval = window.setInterval(setTime, 1000); // Start new timer
         document.getElementById("timer").innerHTML = "0:00:00";
         
