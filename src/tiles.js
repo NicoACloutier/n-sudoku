@@ -12,7 +12,7 @@ function getSize(n, candidate) {
     if (candidate) {
         switch (n) { // these are the values in candidate mode
             case 2: padVal = 0; fontSize = 400; break;
-            case 3: padVal = 2; fontSize = 160; break;
+            case 3: padVal = 1; fontSize = 160; break;
             case 4: padVal = 0; fontSize = 68; break; 
             case 5: padVal = 3; fontSize = 40; break; 
         }
@@ -21,8 +21,8 @@ function getSize(n, candidate) {
         switch (n) {
             case 2: padVal = 20; fontSize = 360; break; // set padding and font size for base-2 boards (%)
             case 3: padVal = 15; fontSize = 200; break; // set padding and font size for base-3 boards (%)
-            case 4: padVal = 7; fontSize = 160; break; // set padding and font size for base-4 boards (%)
-            case 5: padVal = 0; fontSize = 120; break; // set padding and font size for base-5 boards (%)
+            case 4: padVal = 5; fontSize = 160; break; // set padding and font size for base-4 boards (%)
+            case 5: padVal = 0; fontSize = 115; break; // set padding and font size for base-5 boards (%)
         }   
     }
     return `padding: ${padVal}%; font-size: ${fontSize}%;`;
@@ -40,16 +40,34 @@ Returns:
 function createStyle(n, i, candidate) {
     let style = getSize(n, candidate);
     
-    let nsqr = n*n;
-    let isTop = (Math.floor(i / nsqr) % n === 0);
-    let isLeft = ((i % nsqr) % n === 0);
-    let isRight = (((i+1) % nsqr) % n === 0);
-    let isBottom = (Math.floor((i+nsqr) / nsqr) % n === 0);
+    const nsqr = n*n;
+    const isTop = (Math.floor(i / nsqr) % n === 0);
+    const isLeft = ((i % nsqr) % n === 0);
+    const isRight = (((i+1) % nsqr) % n === 0);
+    const isBottom = (Math.floor((i+nsqr) / nsqr) % n === 0);
     
-    if (isTop) { style += " border-top: 2px solid black;"; }
-    if (isLeft) { style += " border-left: 2px solid black;"; }
-    if (isRight) { style += " border-right: 2px solid black;"; }
-    if (isBottom) { style += " border-bottom: 2px solid black;"; }
+    if (isTop) {
+        const isExtremeTop = Math.floor(i / nsqr) === 0;
+        if (isExtremeTop) style += " border-top: 4px solid black;";
+        else style += " border-top: 2px solid black;";
+    }
+    if (isLeft) {
+        const isExtremeLeft = (i % nsqr) === 0;
+        if (isExtremeLeft) style += " border-left: 4px solid black;";
+        else style += " border-left: 2px solid black;";
+    }
+    if (isRight) {
+        const isExtremeRight = ((i+1) % nsqr) === 0;
+        if (isExtremeRight) style += " border-right: 4px solid black;";
+        else style += " border-right: 2px solid black;";
+    }
+    if (isBottom) {
+        const isExtremeBottom = i >= nsqr * (nsqr-1);
+        if (isExtremeBottom) style += " border-bottom: 4px solid black;";
+        else style += " border-bottom: 2px solid black;";
+    }
+    
+    if (candidate) { style += " color: #333333;" }
     
     return style;
 }
