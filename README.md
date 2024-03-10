@@ -1,6 +1,6 @@
 # n-sudoku
 
-A website for playing generalized `n`-Sudoku. Traditionally, Sudoku is played on a 9-by-9 grid. For the purpose of this website, I term this "3-Sudoku." The rules of Sudoku, however, can be generalized beyond this (as described in the player manual in this document) to any natural number. This website generates and allows users to play 2-, 3-, 4-, and 5-Sudoku in their browsers. A screenshot of the website is shown below.
+A website for playing generalized `n`-Sudoku. Traditionally, Sudoku is played on a 9-by-9 grid. For the purpose of this website, I term this "3-Sudoku." The rules of Sudoku, however, can be generalized beyond this (as described in the player manual in this document) to any natural number. This website generates and allows users to play 2-, 3-, 4-, and 5-Sudoku in their browsers. The site can be accessed at [nicoacloutier.github.io/n-sudoku](https://nicoacloutier.github.io/n-sudoku). A screenshot of the website is shown below.
 
 ![A screenshot of n-sudoku.](/screenshot.png?raw=true "A screenshot of n-sudoku.")
 
