@@ -187,10 +187,12 @@ function drawBoard(board, enteredVals, n, candidates) {
             let val = enteredVals[i+index];
             if (board.defaultVals[i+index] === null && (val === "" || val === null)) {
                 board.defaultVals[i+index] = board.board[i+index];
+                board.mask[i+index] = false;
                 break;
             }
             if (index+i === length-1) index = 0;
         }
+        checkWin(won, possible, null, enteredVals, null, candidates, board, interval, winVal, null, ind);
         createGrid(n, id, index, defaultVals, enteredVals, candidates, styleMemo, board.board);
     }
 
