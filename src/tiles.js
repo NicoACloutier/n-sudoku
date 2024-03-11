@@ -13,7 +13,7 @@ function getSize(n, candidate) {
         switch (n) { // these are the values in candidate mode
             case 2: padVal = 0; fontSize = 400; break;
             case 3: padVal = 1; fontSize = 160; break;
-            case 4: padVal = 0; fontSize = 68; break; 
+            case 4: padVal = 0; fontSize = 60; break; 
             case 5: padVal = 3; fontSize = 40; break; 
         }
     }
@@ -21,8 +21,8 @@ function getSize(n, candidate) {
         switch (n) {
             case 2: padVal = 20; fontSize = 360; break; // set padding and font size for base-2 boards (%)
             case 3: padVal = 15; fontSize = 200; break; // set padding and font size for base-3 boards (%)
-            case 4: padVal = 5; fontSize = 160; break; // set padding and font size for base-4 boards (%)
-            case 5: padVal = 0; fontSize = 115; break; // set padding and font size for base-5 boards (%)
+            case 4: padVal = 5; fontSize = 140; break; // set padding and font size for base-4 boards (%)
+            case 5: padVal = 0; fontSize = 100; break; // set padding and font size for base-5 boards (%)
         }   
     }
     return `padding: ${padVal}%; font-size: ${fontSize}%;`;
