@@ -14,7 +14,7 @@ function getSize(n, candidate) {
             case 2: padVal = 0; fontSize = 400; break;
             case 3: padVal = 1; fontSize = 160; break;
             case 4: padVal = 0; fontSize = 60; break; 
-            case 5: padVal = 3; fontSize = 40; break; 
+            case 5: padVal = 1; fontSize = 40; break; 
         }
     }
     else { // these are the values otherwise
